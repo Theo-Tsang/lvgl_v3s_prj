@@ -39,3 +39,33 @@ To allow custom UI code an `lv_conf.h` file placed at `ui/simulator/inc` will au
 To build and debug, press F5. You should now have your UI displayed in a new window and can access all the debug features of VSCode through GDB.
 
 To allow temporary modification between simulator and device code, a SIMULATOR=1 define is added globally.
+
+
+## New
+lv_examples/src/lv_demo_smarthome -> UI of SmartHome project [address](https://github.com/Theo-s-Open-Source-Project/SmartHome) 
+you need to modified main.c
+```
+int main(int argc, char **argv)
+{
+  (void)argc; /*Unused*/
+  (void)argv; /*Unused*/
+
+  /*Initialize LVGL*/
+  lv_init();            // 初始化lvgl    
+
+  /*Initialize the HAL (display, input devices, tick) for LVGL*/
+  hal_init();           // 这里单片机就是硬件初始化，模拟器中是模拟器初始化(修改配置)
+
+  // lv_demo_widgets();    // 这个函数就是演示的demo(修改示例)
+  lv_demo_smarthome(0.5);
+
+  while (1) {
+    /* Periodically call the lv_task handler.
+     * It could be done in a timer interrupt or an OS task too.*/
+    lv_task_handler();  // lvgl的任务处理，主要处理事件响应
+    usleep(5 * 1000);   // 休眠10ms
+  }
+
+  return 0;
+}
+```

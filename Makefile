@@ -3,11 +3,10 @@
 # WARNING: relies on invocation setting current working directory to Makefile location
 # This is done in .vscode/task.json
 #
-PROJECT 			?= lvgl-sdl
 MAKEFLAGS 			:= -j $(shell nproc)
 SRC_EXT      		:= c
 OBJ_EXT				:= o
-CC 					?= gcc
+CC 					:= gcc
 
 SRC_DIR				:= ./
 WORKING_DIR			:= ./build
@@ -30,7 +29,7 @@ DEFINES				:= -D SIMULATOR=1 -D LV_BUILD_TEST=0
 
 # Include simulator inc folder first so lv_conf.h from custom UI can be used instead
 INC 				:= -I./ui/simulator/inc/ -I./ -I./lvgl/
-LDLIBS	 			:= -lSDL2 -lm
+LDFLAGS 			:= -lSDL2 -lm
 BIN 				:= $(BIN_DIR)/demo
 
 COMPILE				= $(CC) $(CFLAGS) $(INC) $(DEFINES)
@@ -48,11 +47,7 @@ $(BUILD_DIR)/%.$(OBJ_EXT): $(SRC_DIR)/%.$(SRC_EXT)
 
 default: $(OBJECTS)
 	@mkdir -p $(BIN_DIR)
-	$(CC) -o $(BIN) $(OBJECTS) $(LDFLAGS) ${LDLIBS}
+	$(CC) -o $(BIN) $(OBJECTS) $(LDFLAGS)
 
 clean:
 	rm -rf $(WORKING_DIR)
-
-install: ${BIN}
-	install -d ${DESTDIR}/usr/lib/${PROJECT}/bin
-	install $< ${DESTDIR}/usr/lib/${PROJECT}/bin/

@@ -42,7 +42,8 @@ To allow temporary modification between simulator and device code, a SIMULATOR=1
 
 
 ## New
-lv_examples/src/lv_demo_smarthome -> UI of [SmartHome project](https://github.com/Theo-s-Open-Source-Project/SmartHome) 
+lv_examples/src/lv_demo_smarthome -> UI of [SmartHome project](https://github.com/Theo-s-Open-Source-Project/SmartHome) .
+
 you need to modified main.c
 ```
 int main(int argc, char **argv)

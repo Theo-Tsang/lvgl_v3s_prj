@@ -13,7 +13,7 @@ static void tabview2_create(lv_obj_t * parent);//标签页2
 static void tabview3_create(lv_obj_t * parent);//标签页3
 static void lv_smarthome_boot_animation(int time);//开机动画
 static void night_dark_set(int mode);//夜间模式 or 日间模式
-static void get_sys_time(void *arg);//获取系统时间
+static void watch_time(lv_obj_t * parent);//时钟
 static void btn_event_all_led(lv_obj_t * obj, lv_event_t event);//声明按键(所有灯光)回调
 static void btn_event_led1(lv_obj_t * obj, lv_event_t event);//声明按键(灯光1)回调
 
@@ -26,12 +26,16 @@ static lv_obj_t * btn_img1;//灯光1
 static lv_obj_t * btn_img2;//灯光2
 static lv_obj_t * btn_img3;//灯光3
 static lv_obj_t * btn_img4;//所有灯光
+static lv_obj_t * second_bg;//秒钟
+static lv_obj_t * minute_bg;//分钟
+static lv_obj_t * hour_bg;//时钟
 
 static bool led_status = false;//LED标志位
 static bool led_status1 = false;//LED1标志位
 
 
-int year, month, date, hour, minute, second;
+
+int Year, Month, Date, Hour, Minute, Second;
 
 
 //声明按键回调
@@ -122,8 +126,10 @@ static void tabview1_create(lv_obj_t * parent)
     lv_label_set_recolor(label, true);//文本重新着色
     lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 0);//标签在界面居中显示
     lv_label_set_text(label, "page1");//设置文本内容
-    // get_sys_time(NULL);
-    // lv_label_set_text_fmt(label, "%d:%d", hour, minute);   
+
+
+
+    watch_time(parent);
 
     // lv_task_create(get_sys_time, 1000, LV_TASK_PRIO_LOW, NULL);  // 1秒任务
     
@@ -255,7 +261,7 @@ static void lv_smarthome_boot_animation(int time)
     background_animation = lv_obj_create(lv_scr_act(), NULL);//创建基本对象，如果为 NULL 将创建一个屏幕
 	lv_obj_clean_style_list(background_animation, LV_OBJ_PART_MAIN);//清空对象风格
 	lv_obj_set_style_local_bg_opa(background_animation, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_OPA_100);//设置颜色覆盖度100%，数值越低，颜色越透。
-	lv_obj_set_style_local_bg_color(background_animation, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);//设置背景颜色为绿色
+	lv_obj_set_style_local_bg_color(background_animation, LV_OBJ_PART_MAIN, LV_STATE_DEFAULT, LV_COLOR_BLACK);//设置背景颜色为黑色
     lv_obj_set_size(background_animation, LV_HOR_RES, LV_VER_RES);//设置覆盖面积
 
     //进度条
@@ -291,7 +297,7 @@ static void night_dark_set(int mode)
 
 
 //获取系统时间
-static void get_sys_time(void *arg)
+static void get_sys_time(lv_obj_t * parent)
 {
     #include   <stdio.h> 
     #include   <time.h> 
@@ -302,19 +308,67 @@ static void get_sys_time(void *arg)
     ts = time(NULL);
     time_out = localtime(&ts);
 
-    year = time_out-> tm_year+1900;//年
-    month = time_out-> tm_mon+1;   //月
-    date = time_out-> tm_mday;     //日
-    hour = time_out-> tm_hour;     //时
-    minute = time_out-> tm_min;    //分
-    second = time_out-> tm_sec;    //秒
-    printf("\n%d-%d-%d %d:%d:%d\n", year, month, date, hour, minute, second);
+    Year = time_out-> tm_year+1900;//年
+    Month = time_out-> tm_mon+1;   //月
+    Date = time_out-> tm_mday;     //日
+    Hour = time_out-> tm_hour;     //时
+    Minute = time_out-> tm_min;    //分
+    Second = time_out-> tm_sec;    //秒
+    printf("\n%d-%d-%d %d:%d:%d\n", Year, Month, Date, Hour, Minute, Second);
 
     //文本
-    lv_obj_t * label = lv_label_create(tabview1, NULL);//创建标签对象
-    lv_label_set_recolor(label, true);//文本重新着色
-    lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 0);//标签在界面居中显示
-    lv_label_set_text_fmt(label, "%02d:%02d", minute, second);   
+    // lv_obj_t * label = lv_label_create(tabview1, NULL);//创建标签对象
+    // lv_label_set_recolor(label, true);//文本重新着色
+    // lv_obj_align(label, NULL, LV_ALIGN_CENTER, 0, 0);//标签在界面居中显示
+    // lv_label_set_text_fmt(label, "%02d:%02d", Minute, Second);   
+
+    //watch time
+    lv_img_set_angle(hour_bg, Hour*60);//时钟旋转
+    lv_img_set_angle(minute_bg, Minute*60);//分钟旋转   
+    lv_img_set_angle(second_bg, Second*60);//秒钟旋转
+}
+
+
+//时钟
+static void watch_time(lv_obj_t * parent)
+{
+    //表盘
+    LV_IMG_DECLARE(watch_bg); //声明图片 CF_TURE_COLOR
+    lv_obj_t * background_img = lv_img_create(parent, NULL);//创建基本对象，如果为 NULL 将创建一个屏幕
+	lv_obj_clean_style_list(background_img, LV_OBJ_PART_MAIN);//清空对象风格
+	lv_img_set_src(background_img, &watch_bg);//加载表盘
+    lv_obj_set_size(background_img, 430, 430);//设置覆盖面积
+    // lv_obj_set_auto_realign(background_img, true);
+    lv_obj_align(background_img, parent, LV_ALIGN_CENTER, 0, 0);//标签在界面居中显示
+
+    //时钟
+    LV_IMG_DECLARE(hour_img); //声明图片 CF_TRUE_COLOR_ALPHA
+    hour_bg = lv_img_create(parent, NULL);//创建基本对象，如果为 NULL 将创建一个屏幕
+	// lv_obj_clean_style_list(second_bg, LV_OBJ_PART_MAIN);//清空对象风格
+	lv_img_set_src(hour_bg, &hour_img);//加载时钟
+    lv_obj_set_size(hour_bg, 430, 430);//设置覆盖面积
+    lv_obj_align(hour_bg, background_img, LV_ALIGN_CENTER, 0, 0);//标签在界面居中显示
+    lv_img_set_angle(hour_bg, Hour);//时钟旋转
+
+    //分钟
+    LV_IMG_DECLARE(minute_img); //声明图片 CF_TRUE_COLOR_ALPHA
+    minute_bg = lv_img_create(parent, NULL);//创建基本对象，如果为 NULL 将创建一个屏幕
+	lv_obj_clean_style_list(minute_bg, LV_OBJ_PART_MAIN);//清空对象风格
+	lv_img_set_src(minute_bg, &minute_img);//加载分钟
+    lv_obj_set_size(minute_bg, 430, 430);//设置覆盖面积
+    lv_obj_align(minute_bg, background_img, LV_ALIGN_CENTER, 0, 0);//标签在界面居中显示
+    // lv_img_set_angle(minute_bg, Minute*60);//分钟旋转
+
+    //秒钟 
+    LV_IMG_DECLARE(second_img); //声明图片 CF_TRUE_COLOR_ALPHA
+    second_bg = lv_img_create(parent, NULL);//创建基本对象，如果为 NULL 将创建一个屏幕
+	lv_obj_clean_style_list(second_bg, LV_OBJ_PART_MAIN);//清空对象风格
+	lv_img_set_src(second_bg, &second_img);//加载秒钟
+    // lv_obj_set_size(second_bg, 430, 430);//设置覆盖面积
+    lv_obj_align(second_bg, background_img, LV_ALIGN_CENTER, 0, 0);//标签在界面居中显示
+    lv_img_set_angle(second_bg, Second*60);//秒钟旋转
+
+    lv_task_create(get_sys_time, 1000, LV_TASK_PRIO_LOW, NULL);  // 1秒任务
 }
 
 
